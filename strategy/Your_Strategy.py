@@ -46,16 +46,18 @@ class Your_Strategy(Strategy):
         
         # Stock allocation limits (% of total portfolio)
         self.max_position_allocation = {
-            "AAPL": 0.05,      # 5% max
-            "GOOGL": 0.05,     # 5% max
-            "JNJ": 0.05,       # 5% max
-            "ISRG": 0.03,      # 3% max
-            "CRWD": 0.025,     # 2.5% max
-            "AMD": 0.025,      # 2.5% max
-            "MU": 0.025        # 2.5% max
+            "AAPL": 0.05,      # 5% max - Core
+            "GOOGL": 0.05,     # 5% max - Core
+            "JNJ": 0.05,       # 5% max - Core
+            "ISRG": 0.03,      # 3% max - Smaller position
+            "DIS": 0.03,       # 3% max - Smaller position
+            "TSML": 0.03,      # 3% max - Smaller position
+            "CRWD": 0.025,     # 2.5% max - Half-sized
+            "AMD": 0.025,      # 2.5% max - Half-sized
+            "MU": 0.025        # 2.5% max - Half-sized
         }
         
-        self.stock_trading_list = ["AAPL", "CRWD", "MU", "AMD", "GOOGL", "ISRG", "JNJ"]
+        self.stock_trading_list = ["AAPL", "CRWD", "MU", "AMD", "GOOGL", "ISRG", "JNJ", "TSML", "DIS"]
         
         # Safety Controls
         self.max_active_positions = 4  # Maximum 4 simultaneous positions
