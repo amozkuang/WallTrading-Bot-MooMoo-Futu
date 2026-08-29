@@ -42,7 +42,7 @@ class Your_Strategy(Strategy):
         """⬇️⬇️⬇️ Portfolio & Risk Settings ⬇️⬇️⬇️"""
         
         # Total portfolio value (update this with your actual bot capital)
-        self.total_portfolio_value = 3000  # $3,000 allocated to bot (20-30% of total)
+        self.total_portfolio_value = 1000  # $1,000 allocated to bot (20-30% of total)
         
         # Stock allocation limits (% of total portfolio)
         self.max_position_allocation = {
@@ -69,7 +69,7 @@ class Your_Strategy(Strategy):
         
         # Trading parameters
         self.trading_confirmation = True  # Require manual approval for orders
-        self.use_paper_trading = False  # Set to True for paper trading mode
+        self.use_paper_trading = True  # Set to True for paper trading mode
         self.require_manual_approval = True  # User must approve each trade
         
         # Weekly execution (run once after Friday close)
@@ -81,6 +81,7 @@ class Your_Strategy(Strategy):
         print(f"Bot Capital: ${self.total_portfolio_value}")
         print(f"Max Active Positions: {self.max_active_positions}")
         print(f"Max New Positions/Week: {self.max_new_positions_per_week}")
+        print(f"Paper Trading Mode: {self.use_paper_trading}")
 
     def strategy_decision(self):
         print("Strategy Decision running...")
