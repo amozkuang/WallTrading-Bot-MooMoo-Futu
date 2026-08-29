@@ -8,6 +8,9 @@
 # updated: 11/17/2024, final version for open source only
 # Version 2.0
 # for more info, please visit: https://www.patreon.com/LookAtWallStreet
+
+# UPDATED: 08/29/2026
+# Version 3.1 - Twice-weekly execution (Mon 8pm, Fri 8am SG time)
 """
 
 # MooMoo API Documentation, English:
@@ -17,6 +20,7 @@
 
 from moomoo import *
 import schedule
+from pytz import timezone
 
 from env._secrete import MooMoo_PWD
 from strategy.Your_Strategy import Your_Strategy
@@ -58,6 +62,8 @@ TRADING_MARKET = TrdMarket.US  # set up the trading market, US market, HK for Ho
 
 """ ⏫ project setup ⏫ """
 
+# Timezone for SG time (UTC+8)
+SG_TZ = timezone('Asia/Singapore')
 
 # Trader class:
 class Trader:
@@ -209,20 +215,32 @@ class Trader:
 if __name__ == '__main__':
 
     print(get_current_time(), 'TradingBOT is running...')
+    print("Execution Schedule: Monday 8:00 PM SG time + Friday 8:00 AM SG time")
+    print("=" * 60)
+    
     # Create a trader and strategy object
     trader = Trader()
     strategy = Your_Strategy(trader)
     print("trader and strategy objects created...")
 
-    # schedule the task
+    # schedule the task - Twice weekly execution
     bot_task = schedule.Scheduler()
-    bot_task.every().minute.at(":05").do(strategy.strategy_decision)    # please change the interval as needed
+    
+    # Monday 8:00 PM SG time (UTC+8)
+    bot_task.every().monday.at("20:00", tz=SG_TZ).do(strategy.strategy_decision)
+    
+    # Friday 8:00 AM SG time (UTC+8)
+    bot_task.every().friday.at("08:00", tz=SG_TZ).do(strategy.strategy_decision)
 
     # print the time every hour showing bot running...
     bkg_task = schedule.Scheduler()
     bkg_task.every().hour.at(":00").do(print_current_time)
 
     print("schedule the task...")
+    print("Next scheduled executions:")
+    print("  - Every Monday at 8:00 PM SG time")
+    print("  - Every Friday at 8:00 AM SG time")
+    print("=" * 60)
 
     # loop and keep the schedule running
     while True:
