@@ -13,13 +13,14 @@ updated: 04/09/2024, output formatting
 # Version 2.0
 # for more info, please visit: https://www.patreon.com/LookAtWallStreet
 
+Modified: 40-Week MACD Strategy
 """
 
 import yfinance as yf
 from moomoo import *
 from strategy.Strategy import Strategy
 import pandas as pd
-from ta.trend import SMAIndicator
+from ta.trend import MACD
 # import pandas_ta as pta
 from utils.dataIO import read_json_file, write_json_file, logging_info
 from utils.time_tool import is_market_hours
@@ -27,20 +28,25 @@ from utils.time_tool import is_market_hours
 
 class Your_Strategy(Strategy):
     """
-    This is an example strategy class, you can define your own strategy here.
+    This is a 40-week MACD strategy example.
     """
 
     def __init__(self, trader):
         super().__init__(trader)
-        self.strategy_name = "Example_Strategy"
+        self.strategy_name = "MACD_40Week_Strategy"
 
         """⬇️⬇️⬇️ Strategy Settings ⬇️⬇️⬇️"""
 
-        self.stock_trading_list = ["SPY", "QQQ"]
+        self.stock_trading_list = ["AAPL", "CRWD", "MU", "AMD", "GOOGL", "ISRG", "JNJ"]
         self.trading_qty = {
             # please set the trading quantity for each stock
-            "SPY": 88,
-            "QQQ": 88
+            "AAPL": 10,
+            "CRWD": 10,
+            "MU": 10,
+            "AMD": 10,
+            "GOOGL": 5,
+            "ISRG": 5,
+            "JNJ": 10
         }
 
         self.trading_confirmation = True    # True to enable trading confirmation
@@ -53,39 +59,49 @@ class Your_Strategy(Strategy):
 
     def strategy_decision(self):
         print("Strategy Decision running...")
-        """ ⬇️⬇️⬇️ Simple Example Strategy starts here ⬇️⬇️⬇️"""
-        # please modify the following code to match your own strategy
+        """ ⬇️⬇️⬇️ 40-Week MACD Strategy starts here ⬇️⬇️⬇️"""
+        # MACD strategy based on 40 weeks of weekly data
         for stock in self.stock_trading_list:
             try:
-                # 1. get the stock data from quoter, return a pandas dataframe
-                df = yf.Ticker(stock).history(interval="1h", actions=False, prepost=False, raise_errors=True)
+                # 1. get 40 weeks of weekly stock data from yfinance
+                df = yf.Ticker(stock).history(interval="1wk", actions=False, prepost=False, raise_errors=True)
+                
+                # Only process if we have enough data
+                if len(df) < 40:
+                    print(f"{stock}: Not enough data. Have {len(df)} weeks, need 40.")
+                    continue
 
-                # 2. calculate the indicator
-                df['fast_ma'] = SMAIndicator(df['Close'], window=5).sma_indicator()
-                df['slow_ma'] = SMAIndicator(df['Close'], window=10).sma_indicator()
+                # Keep only the last 40 weeks
+                df = df.tail(40)
+
+                # 2. calculate MACD indicator
+                macd = MACD(df['Close'], window_fast=12, window_slow=26, window_sign=9)
+                df['macd'] = macd.macd()
+                df['macd_signal'] = macd.macd_signal()
+                df['macd_diff'] = macd.macd_diff()
 
                 price = df['Close'].iloc[-1]
                 qty = self.trading_qty[stock]
 
                 # 3. check the signal and place order
-                if (df['fast_ma'].iloc[-1] > df['slow_ma'].iloc[-1]) and (
-                        df['fast_ma'].iloc[-2] <= df['slow_ma'].iloc[-2]):
-                    # Buy when the fast MA crosses above the slow MA.
-                    print('BUY Signals')
-                    self.strategy_make_trade(action='BUY', stock=stock, qty=qty, price=price)   # place order
+                # Buy signal: MACD crosses above the signal line
+                if (df['macd'].iloc[-1] > df['macd_signal'].iloc[-1]) and (
+                        df['macd'].iloc[-2] <= df['macd_signal'].iloc[-2]):
+                    print(f'BUY Signal for {stock}')
+                    self.strategy_make_trade(action='BUY', stock=stock, qty=qty, price=price)
 
-                if (df['fast_ma'].iloc[-1] < df['slow_ma'].iloc[-1]) and (
-                        df['fast_ma'].iloc[-2] >= df['slow_ma'].iloc[-2]):
-                    # Sell when the fast MA crosses below the slow MA.
-                    print('SELL Signals')
-                    self.strategy_make_trade(action='SELL', stock=stock, qty=qty, price=price)  # place order
+                # Sell signal: MACD crosses below the signal line
+                if (df['macd'].iloc[-1] < df['macd_signal'].iloc[-1]) and (
+                        df['macd'].iloc[-2] >= df['macd_signal'].iloc[-2]):
+                    print(f'SELL Signal for {stock}')
+                    self.strategy_make_trade(action='SELL', stock=stock, qty=qty, price=price)
 
                 time.sleep(1)  # sleep 1 second to avoid the quote limit
             except Exception as e:
-                print(f"Strategy Error: {e}")
-                logging_info(f'{self.strategy_name}: {e}')
+                print(f"Strategy Error for {stock}: {e}")
+                logging_info(f'{self.strategy_name}: {stock} - {e}')
 
-        """ ⏫⏫⏫ Simple Example Strategy ends here ⏫⏫⏫ """
+        """ ⏫⏫⏫ 40-Week MACD Strategy ends here ⏫⏫⏫ """
 
         print("Strategy checked... Waiting next decision called...")
         print('-----------------------------------------------')
