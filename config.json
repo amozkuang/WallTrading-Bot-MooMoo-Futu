@@ -1,0 +1,73 @@
+{
+  "trading_mode": {
+    "paper_trading": true,
+    "description": "Set to true for PAPER trading (no real money), false for LIVE trading"
+  },
+  
+  "bot_capital": {
+    "total_portfolio_value": 1000,
+    "description": "Total capital allocated to bot ($). Start small: $100-500 for live trading"
+  },
+
+  "execution_schedule": {
+    "timezone": "Asia/Singapore",
+    "executions": [
+      {
+        "day": "Monday",
+        "time": "20:00",
+        "description": "Monday 8:00 PM SG time (UTC+8)"
+      },
+      {
+        "day": "Friday", 
+        "time": "08:00",
+        "description": "Friday 8:00 AM SG time (UTC+8)"
+      }
+    ]
+  },
+
+  "trading_parameters": {
+    "max_active_positions": 4,
+    "max_new_positions_per_week": 1,
+    "max_position_allocation_pct": 5,
+    "description": "Risk management: max 4 open positions, 1 new per week"
+  },
+
+  "circuit_breakers": {
+    "circuit_breaker_5pct": 0.05,
+    "circuit_breaker_8pct": 0.08,
+    "max_drawdown_threshold": 0.10,
+    "description": "Auto-stop trading if portfolio loses 5%, manual review at 8%, halt at 10%"
+  },
+
+  "portfolio_allocation": {
+    "AAPL": 0.05,
+    "GOOGL": 0.05,
+    "JNJ": 0.05,
+    "ISRG": 0.03,
+    "TSML": 0.03,
+    "DIS": 0.03,
+    "CRWD": 0.025,
+    "AMD": 0.025,
+    "MU": 0.025,
+    "description": "Max % of portfolio per stock (5%=core, 3%=smaller, 2.5%=half-sized)"
+  },
+
+  "approval_settings": {
+    "require_manual_approval": true,
+    "description": "Require manual approval for all trades (safety feature)"
+  },
+
+  "dashboard": {
+    "port": 5000,
+    "refresh_interval_seconds": 5,
+    "url": "http://localhost:5000",
+    "description": "Web dashboard for monitoring bot"
+  },
+
+  "notes": {
+    "switching_to_live": "Set paper_trading to false ONLY after 12 weeks of paper testing",
+    "minimum_capital_live": "$100 - Start small!",
+    "monitoring": "Check dashboard daily during first 2 weeks of live trading",
+    "contact": "Keep MooMoo OpenD logged in and running at port 11112"
+  }
+}
