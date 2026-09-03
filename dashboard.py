@@ -1,6 +1,6 @@
 """
 Simple Web Dashboard for Trading Bot Monitoring
-Version 1.0 - 08/29/2026
+Version 1.1 - 08/29/2026
 
 Monitors bot status, pending trades, and order history
 Access at: http://localhost:5000
@@ -53,7 +53,7 @@ def get_bot_status():
     sell_count = sum(1 for o in orders if 'SELL' in str(o).upper())
     
     # Get last execution time from logs
-    last_execution = "Never"
+    last_execution = "Waiting for next execution"
     for log in reversed(logs):
         if "Strategy Decision running" in log or "Execution Time" in log:
             last_execution = log
@@ -78,26 +78,38 @@ def dashboard():
 @app.route('/api/status')
 def api_status():
     """API endpoint for bot status"""
-    return jsonify(get_bot_status())
+    try:
+        return jsonify(get_bot_status())
+    except Exception as e:
+        print(f"Error in /api/status: {e}")
+        return jsonify({"error": str(e), "status": "🟠 Error"}), 500
 
 
 @app.route('/api/orders')
 def api_orders():
     """API endpoint for order history"""
-    orders = read_order_history()
-    return jsonify({
-        "total": len(orders),
-        "orders": orders[-20:]  # Last 20 orders
-    })
+    try:
+        orders = read_order_history()
+        return jsonify({
+            "total": len(orders),
+            "orders": orders[-20:]  # Last 20 orders
+        })
+    except Exception as e:
+        print(f"Error in /api/orders: {e}")
+        return jsonify({"error": str(e), "total": 0, "orders": []}), 500
 
 
 @app.route('/api/logs')
 def api_logs():
     """API endpoint for recent logs"""
-    logs = read_logs()
-    return jsonify({
-        "logs": logs[-50:]  # Last 50 log entries
-    })
+    try:
+        logs = read_logs()
+        return jsonify({
+            "logs": logs[-50:]  # Last 50 log entries
+        })
+    except Exception as e:
+        print(f"Error in /api/logs: {e}")
+        return jsonify({"error": str(e), "logs": []}), 500
 
 
 @app.route('/api/schedule')
@@ -123,6 +135,18 @@ def api_schedule():
     })
 
 
+@app.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors"""
+    return jsonify({"error": "Not found"}), 404
+
+
+@app.errorhandler(500)
+def server_error(error):
+    """Handle 500 errors"""
+    return jsonify({"error": "Server error"}), 500
+
+
 if __name__ == '__main__':
     print("=" * 60)
     print("Trading Bot Dashboard")
@@ -130,4 +154,4 @@ if __name__ == '__main__':
     print("Starting dashboard at http://localhost:5000")
     print("Press Ctrl+C to stop")
     print("=" * 60)
-    app.run(debug=True, port=5000, use_reloader=False)
+    app.run(debug=False, port=5000, use_reloader=False, host='127.0.0.1')
